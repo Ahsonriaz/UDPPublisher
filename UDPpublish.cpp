@@ -13,19 +13,15 @@
 
 using namespace std;
 
-int client_funct()
-{
+int run_publisher() {
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
-
-    if (sock == -1)
-    {
-
+    if (sock == -1) {
         cout << "socket not created" << endl;
         return -1;
     }
 
     //create hint structure for the server we are connecting
-    int port = 54000; //what happens if client and server have different ports?
+    int port = 54000; 
     string ipaddress = "127.0.0.1";
 
     sockaddr_in hint;
@@ -37,39 +33,28 @@ int client_funct()
     {
         string s;
 
+        cout << "Enter message: " << flush;
         getline(cin, s);
 
         for (int i = 0; i < 10; i++)
         {
             this_thread::sleep_for(chrono::seconds(1));
-
-            long int drn= chrono::duration_cast<chrono::microseconds> (chrono::steady_clock::now().time_since_epoch()).count();
-
+            long int drn= chrono::duration_cast<chrono::microseconds> (
+                            chrono::steady_clock::now().time_since_epoch()).count();
             string time1 = to_string(drn);
-
             string serial = ":";
-
             string interm = time1.append(serial);
-
             string sendstr = interm.append(s);
-
-            int sendok = sendto(sock, sendstr.c_str(), sendstr.size() + 1, 0, (sockaddr *)&hint, sizeof(hint));
+            int bytes = sendto(sock, sendstr.c_str(), sendstr.size() + 1, 0, (sockaddr *)&hint, sizeof(hint));
+            cout << "Published " << bytes << " bytes on port 54000 " << endl;
         }
     }
 
     close(sock);
-
     return 0;
 }
 
-int main()
-{
-
-    client_funct();
+int main() {
+    return run_publisher();
 }
 
-//UDP publisher
-//time stamp : internall clock steady clock (microseconds) -> microseconds timestamp -> write string /numeric ,ostring stream, long int -> string -> append ,quote
-//timestamp->quote ->publish
-//every 1 second publisher will send message
-//serialization, de searializtion
